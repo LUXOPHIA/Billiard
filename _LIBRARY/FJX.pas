@@ -2,7 +2,7 @@
 
 interface //######################################################################################## ■
 
-uses System.Types, System.Math.Vectors, System.UITypes,
+uses System.UITypes, System.Math.Vectors,
      FMX.Controls3D, FMX.Graphics;
 
 type //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$【型】
@@ -55,7 +55,7 @@ type //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
        property _SizeZ :Single read Get_SizeZ write Set_SizeZ;
        ///// アクセス
        function GetAbsolMatrix :TMatrix3D; inline;
-       procedure SetAbsolMatrix( const AbsoluteMatrix_:TMatrix3D ); virtual;
+       procedure SetAbsolMatrix( const AbsolMatrix_:TMatrix3D ); virtual;
        function GetLocalMatrix :TMatrix3D; virtual;
        procedure SetLocalMatrix( const LocalMatrix_:TMatrix3D ); virtual;
        ///// メソッド
@@ -181,9 +181,13 @@ begin
      Result := AbsoluteMatrix;
 end;
 
-procedure HControl3D.SetAbsolMatrix( const AbsoluteMatrix_:TMatrix3D );
+procedure HControl3D.SetAbsolMatrix( const AbsolMatrix_:TMatrix3D );
 begin
-     FAbsoluteMatrix := AbsoluteMatrix_;  FRecalcAbsolute := False;
+     FAbsoluteMatrix := AbsolMatrix_;  FRecalcAbsolute := False;
+
+     FInvAbsoluteMatrix := FAbsoluteMatrix.Inverse;
+
+     FLocalMatrix := FAbsoluteMatrix * TControl3D( FParent ).AbsoluteMatrix.Inverse;
 
      RecalcChildrenAbsolute;
 end;
@@ -244,17 +248,17 @@ begin
                SY := _SizeY;
                SZ := _SizeZ;
 
-               AbsolMatrix := Self.AbsoluteMatrix;
-               _SizeX         := Self._SizeX;
-               _SizeY         := Self._SizeY;
-               _SizeZ         := Self._SizeZ;
+               AbsolMatrix := Self.AbsolMatrix;
+               _SizeX      := Self._SizeX;
+               _SizeY      := Self._SizeY;
+               _SizeZ      := Self._SizeZ;
 
                RenderTree;
 
                AbsolMatrix := M;
-               _SizeX         := SX;
-               _SizeY         := SY;
-               _SizeZ         := SZ;
+               _SizeX      := SX;
+               _SizeY      := SY;
+               _SizeZ      := SZ;
           end;
      end;
 end;

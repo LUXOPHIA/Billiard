@@ -2,7 +2,7 @@
 
 interface //######################################################################################## ■
 
-uses System.Types, System.Classes, System.Math.Vectors,
+uses System.Classes, System.Math.Vectors,
      FMX.Objects3D,
      FJX;
 
@@ -84,7 +84,9 @@ begin
           Z := ( 100 - 4 ) * ( Random - 0.5 );
      end;
 
-     S := Random;  T := Pi2 * Random;
+     S := 0; //初期速度
+
+     T := Pi2 * Random; //初期方向
 
      with _Velo0 do
      begin
@@ -93,9 +95,9 @@ begin
           Z := S * Sin( T );
      end;
 
-     _Mass := 1;
+     _Mass := 1; //質量
 
-     _Bounce := 1;
+     _Bounce := 1;  //弾性係数
 end;
 
 destructor TBall.Destroy;

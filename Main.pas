@@ -3,11 +3,12 @@
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, System.Generics.Collections,
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.Math.Vectors, System.Generics.Collections,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Viewport3D,
   FMX.Controls3D, FMX.Objects3D, FMX.MaterialSources,
   FJX,
-  Core, System.Math.Vectors, FMX.Types3D;
+  Core, FMX.Types3D;
 
 type
   TForm1 = class(TForm)
@@ -43,6 +44,8 @@ type
     { private 宣言 }
     _MouseS :TShiftState;
     _MouseP :TPointF;
+    /////
+    procedure ClickBall( Sender_:TObject; Button_:TMouseButton; Shift_:TShiftState; X_,Y_:Single; RayPos_,RayDir_:TVector3D );
   public
     { public 宣言 }
     _Balls :TObjectList<TBall>;
@@ -59,6 +62,16 @@ implementation
 {$R *.fmx}
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& private
+
+procedure TForm1.ClickBall( Sender_:TObject; Button_:TMouseButton; Shift_:TShiftState; X_,Y_:Single; RayPos_,RayDir_:TVector3D );
+var
+   V, N :TPoint3D;
+begin
+     V := Camera1.AbsoluteDirection.Normalize;
+     N := TPoint3D.Create( 0, 1, 0 );
+
+     TBall( Sender_ ).Velo0 := V - V.DotProduct( N ) * N;  //カメラの向いている方向へ打つ
+end;
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& public
 
@@ -77,6 +90,8 @@ begin
           begin
                Parent         := DummyB;
                MaterialSource := LightMaterialSourceB;
+
+               OnMouseDown := ClickBall;
           end;
 
           _Balls.Add( B );
@@ -136,7 +151,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
      _Balls := TObjectList<TBall>.Create;
 
-     MakeBalls( 50 );
+     MakeBalls( 10 );
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -249,11 +264,11 @@ begin
                S0 := Velo0.Length;
 
                M := TMatrix3D.CreateTranslation( P0 );
-               A := D0.CrossProduct( TPoint3D.Create( 0, -1, 0 ) );
+               A := D0.CrossProduct( TPoint3D.Create( 0, 1, 0 ) );
 
                AbsolMatrix := AbsolMatrix
                             * M.Inverse
-                            * TMatrix3D.CreateRotation( A, -S0 / Pi4 * Pi2 )
+                            * TMatrix3D.CreateRotation( A, S0 / Pi4 * Pi2 )
                             * M
                             * TMatrix3D.CreateTranslation( Velo0 );
           end;
